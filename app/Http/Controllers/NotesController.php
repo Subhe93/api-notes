@@ -128,6 +128,32 @@ class NotesController extends Controller
         ]);
     }
 
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'notes' => 'required|array',
+        ]);
+
+        $user = $request->user();
+
+        foreach ($request->notes as $noteData) {
+            $url = $noteData['url'] ?? null;
+            if (!$url) continue;
+
+            $user->notes()->updateOrCreate(
+                ['url' => $url],
+                [
+                    'title' => $noteData['title'] ?? null,
+                    'tags' => $noteData['tags'] ?? [],
+                    'notes_data' => $noteData['notes'] ?? [],
+                    'synced_at' => now(),
+                ]
+            );
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     public function destroy(Request $request, $url)
     {
         $request->user()->notes()->where('url', urldecode($url))->delete();

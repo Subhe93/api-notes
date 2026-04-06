@@ -17,6 +17,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Notes
     Route::get('/notes', [NotesController::class, 'index']);
     Route::post('/notes', [NotesController::class, 'store']);
+    Route::put('/notes', [NotesController::class, 'bulkUpdate']);
     Route::post('/notes/sync', [NotesController::class, 'sync']);
     Route::delete('/notes/{url}', [NotesController::class, 'destroy']);
 
