@@ -28,12 +28,22 @@ class NotesController extends Controller
     {
         $request->validate([
             'notes' => 'present|array',
+            'deletedUrls' => 'nullable|array',
         ]);
 
         $user = $request->user();
         $clientNotes = $request->notes;
         $serverNotes = $user->notes()->get()->keyBy('url');
         $result = [];
+
+        // Delete notes that client explicitly deleted
+        $deletedUrls = $request->deletedUrls ?? [];
+        if (!empty($deletedUrls)) {
+            $user->notes()->whereIn('url', $deletedUrls)->delete();
+            foreach ($deletedUrls as $url) {
+                $serverNotes->forget($url);
+            }
+        }
 
         foreach ($clientNotes as $clientNote) {
             $url = $clientNote['url'] ?? null;
